@@ -15,6 +15,7 @@
 void	*reallocf(void *ptr, size_t size)
 {
 	void	*res;
+
 	write(1, "reallocf\n", 9);
 	res = realloc(ptr, size);
 	free(ptr);

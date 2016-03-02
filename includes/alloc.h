@@ -6,7 +6,7 @@
 /*   By: edelangh <edelangh@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2016/03/02 10:16:21 by edelangh          #+#    #+#             */
-/*   Updated: 2016/03/02 17:14:02 by edelangh         ###   ########.fr       */
+/*   Updated: 2016/03/02 20:07:16 by edelangh         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,6 +15,7 @@
 
 # include <stddef.h>
 # include <unistd.h>
+# include <pthread.h>
 
 #include "tools.h" // NOP
 
@@ -27,6 +28,7 @@ void				*valloc(size_t size);
 void				*realloc(void *ptr, size_t size);
 void				*reallocf(void *ptr, size_t size);
 void				free(void *ptr);
+void				ft_print_memory(void);
 
 typedef struct		s_hdr t_hdr;
 
@@ -49,6 +51,7 @@ typedef struct		s_alloc
 	t_hdr			*tiny;
 	t_hdr			*small;
 	t_hdr			*large;
+	pthread_mutex_t	mutex;
 }					t_alloc;
 
 extern t_alloc		g_alloc;

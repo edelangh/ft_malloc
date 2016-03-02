@@ -17,7 +17,8 @@ SRCS = tools.c \
 	   reallocf.c \
 	   calloc.c \
 	   valloc.c \
-	   free.c
+	   free.c \
+	   ft_print.c
 
 .PHONY: all re clean fclean test
 

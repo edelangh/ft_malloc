@@ -19,9 +19,9 @@ void	*calloc(size_t count, size_t size)
 
 	// TODO Check if not overflow
 	size = count * size;
-	write(1, "calloc\n", 6);
+	write(1, "calloc\n", 7);
 	ptr = malloc(size);
 	ft_bzero(ptr, size);
-	write(1, "calloc-ok\n", 9);
+	write(1, "calloc-ok\n", 10);
 	return (ptr);
 }

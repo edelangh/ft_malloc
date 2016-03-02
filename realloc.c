@@ -6,7 +6,7 @@
 /*   By: edelangh <edelangh@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2016/03/02 10:39:55 by edelangh          #+#    #+#             */
-/*   Updated: 2016/03/02 13:29:24 by edelangh         ###   ########.fr       */
+/*   Updated: 2016/03/02 19:25:58 by edelangh         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -46,11 +46,22 @@ void	*realloc(void *ptr, size_t size)
 
 	write(1, "realloc\n", 8);
 	blk = get_blk_by_ptr(ptr);
+	if (blk && size < blk->size)
+	{
+		write(1, "-ERR", 4);
+	blk = get_blk_by_ptr(ptr);
+		blk = NULL;
+	}
 	new = malloc(size);
 	if (new && ptr && blk)
 	{
+	ft_putnbr(size);
+	write(1, "->", 2);
+	ft_putnbr(blk->size);
+	write(1, "-", 1);
 		ft_memcpy(new, ptr, blk->size);
 		free(ptr);
 	}
+	write(1, "realloc-OK\n", 11);
 	return (new);
 }

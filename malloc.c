@@ -6,26 +6,41 @@
 /*   By: edelangh <edelangh@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2016/03/02 10:05:21 by edelangh          #+#    #+#             */
-/*   Updated: 2016/03/02 17:33:58 by edelangh         ###   ########.fr       */
+/*   Updated: 2016/03/02 20:53:26 by edelangh         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "alloc.h"
 #include <sys/mman.h>
 
-t_alloc	g_alloc = {NULL, NULL, NULL};
+t_alloc	g_alloc = {NULL, NULL, NULL, PTHREAD_MUTEX_INITIALIZER};
+
+
+#include <signal.h> // NOP
+#include <stdlib.h> // NOP
+#include <errno.h>
+
+void	perror(const char *s); // NOP
 
 static t_hdr	*new_hdr(t_hdr** ahdr, size_t size)
 {
 	t_hdr	*prev;
 	t_hdr	*hdr;
 	t_blk	*blk;
+	size_t	page_size;
 
 	prev = *ahdr;
-	(void)size;
-	write(1, "-mmap", 4);
-	size = (((size + sizeof(t_blk) * 2 + sizeof(t_hdr)) / 4096) + 1) * 4096;
-	hdr = mmap(NULL, size, PROT_READ|PROT_WRITE|PROT_EXEC, MAP_ANON|MAP_SHARED, -1, 0);
+	write(2, "-mmap", 4);
+	page_size = getpagesize();
+	size = (((size + sizeof(t_blk) * 2 + sizeof(t_hdr)) / page_size) + 1) * page_size;
+	hdr = mmap(NULL, size, PROT_READ|PROT_WRITE, MAP_ANON|MAP_PRIVATE, -1, (off_t)0);
+	if (hdr == MAP_FAILED)
+	{
+		write(2, "PUTAIN\n", 7);
+		perror("signal-error");
+		while (1)
+			continue ;
+	}
 	*ahdr = hdr;
 	hdr->prev = prev;
 	hdr->size = size;
@@ -43,9 +58,9 @@ static t_hdr	*get_hdr(t_hdr **ahdr, size_t size)
 	hdr = *ahdr;
 	if (hdr)
 	{
-		write(1, "-", 1);
+		write(2, "-", 1);
 		ft_putnbr(hdr->size);
-		write(1, "-", 1);
+		write(2, "-", 1);
 		ft_putnbr(hdr->used);
 	}
 	while (hdr && !HDR_IS_PLACE(hdr, size))
@@ -72,9 +87,9 @@ static t_blk	*new_blk(t_hdr *hdr, size_t size)
 	ptr -= size;
 	blk->size = size;
 	blk->freed = 0;
-	write(1, "-3", 2);
+	write(2, "-3", 2);
 	blk->ptr = ptr;
-	write(1, "-4", 2);
+	write(2, "-4", 2);
 	// INIT next
 	hdr->used += size + sizeof(t_blk);
 	tmp = blk + 1;
@@ -96,12 +111,38 @@ static void		*get_alloc(t_hdr **ahdr, size_t size)
 	return (ptr);
 }
 
+void		lol(int sig) // NOP
+{
+	static int a = 1;
+
+	if (a)
+	{
+		a = 0;
+	write(2, "SIGNAL:", 7);
+	ft_putnbr(sig);
+	write(2, "\n", 1);
+	perror("signal-error");
+	ft_print_memory();
+	}
+	exit(1);
+}
+
 void	*malloc(size_t size)
 {
 	void	*ptr;
 
-	write(1, "malloc", 6);
-	write(1, "-", 1);
+	static int a = 1;
+	if (a)
+	{
+		a = 0;
+		int i;
+		for (i = 1; i < 22; ++i)
+			signal(i, &lol);
+	}
+	pthread_mutex_lock(&(g_alloc.mutex));
+	errno = 0;
+	write(2, "malloc", 6);
+	write(2, "-", 1);
 	ft_putnbr(size);
 	if (size <= N)
 		ptr = get_alloc(&(g_alloc.tiny), size);
@@ -109,8 +150,9 @@ void	*malloc(size_t size)
 		ptr = get_alloc(&(g_alloc.small), size);
 	else
 		ptr = get_alloc(&(g_alloc.large), size);
-	write(1, "-", 1);
+	write(2, "-", 1);
 	ft_putptr(ptr);
-	write(1, "-OK\n", 4);
+	write(2, "-OK\n", 4);
+	pthread_mutex_unlock(&(g_alloc.mutex));
 	return (ptr);
 }
