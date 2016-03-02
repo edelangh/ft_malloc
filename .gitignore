@@ -4,6 +4,9 @@
 *.obj
 *.elf
 
+CMakeFiles/*
+CMakeCache.txt
+*.cmake
 # Precompiled Headers
 *.gch
 *.pch
