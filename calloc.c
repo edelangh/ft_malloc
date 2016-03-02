@@ -22,5 +22,6 @@ void	*calloc(size_t count, size_t size)
 	write(1, "calloc\n", 6);
 	ptr = malloc(size);
 	ft_bzero(ptr, size);
+	write(1, "calloc-ok\n", 9);
 	return (ptr);
 }

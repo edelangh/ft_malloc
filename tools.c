@@ -6,11 +6,42 @@
 /*   By: edelangh <edelangh@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2016/03/02 10:14:37 by edelangh          #+#    #+#             */
-/*   Updated: 2016/03/02 11:03:50 by edelangh         ###   ########.fr       */
+/*   Updated: 2016/03/02 17:15:54 by edelangh         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "tools.h"
+
+#include <unistd.h>
+void	ft_putnbr(size_t size)
+{
+	size_t	n;
+	char	c;
+
+	n = (size_t)size;
+	if (n >= 10)
+		ft_putnbr(n / 10);
+	n %= 10;
+	c = '0' + n;
+	write(1, &c, 1);
+}
+void	ft_putptr(void *ptr)
+{
+	size_t	n;
+	char	c;
+
+	n = (size_t)ptr;
+	if (n >= 16)
+		ft_putptr((void*)(n / 16));
+	else
+		write(1, "0x", 2);
+	n %= 16;
+	if (n >= 10)
+		c = 'a' + n - 10;
+	else
+		c = '0' + n;
+	write(1, &c, 1);
+}
 
 void	*ft_memcpy(void *dst, void *src, size_t size)
 {
