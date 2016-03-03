@@ -6,7 +6,7 @@
 /*   By: edelangh <edelangh@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2016/03/02 10:16:21 by edelangh          #+#    #+#             */
-/*   Updated: 2016/03/02 20:07:16 by edelangh         ###   ########.fr       */
+/*   Updated: 2016/03/03 15:01:35 by edelangh         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,7 +28,6 @@ void				*valloc(size_t size);
 void				*realloc(void *ptr, size_t size);
 void				*reallocf(void *ptr, size_t size);
 void				free(void *ptr);
-void				ft_print_memory(void);
 
 typedef struct		s_hdr t_hdr;
 
@@ -42,8 +41,8 @@ typedef struct		s_hdr
 typedef struct		s_blk
 {
 	unsigned int	size:31;
-	void			*ptr;
 	unsigned int	freed:1;
+	void			*ptr;
 }					t_blk;
 
 typedef struct		s_alloc

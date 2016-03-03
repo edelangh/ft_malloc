@@ -6,7 +6,7 @@
 /*   By: edelangh <edelangh@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2016/03/02 10:12:36 by edelangh          #+#    #+#             */
-/*   Updated: 2016/03/02 10:43:46 by edelangh         ###   ########.fr       */
+/*   Updated: 2016/03/03 10:29:12 by edelangh         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,11 +17,10 @@ void	*calloc(size_t count, size_t size)
 {
 	void	*ptr;
 
-	// TODO Check if not overflow
+	if (size > 0 && count > (~(size_t)0) / size)
+		return (NULL);
 	size = count * size;
-	write(1, "calloc\n", 7);
 	ptr = malloc(size);
 	ft_bzero(ptr, size);
-	write(1, "calloc-ok\n", 10);
 	return (ptr);
 }

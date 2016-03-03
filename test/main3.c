@@ -1,39 +1,30 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   realloc.c                                          :+:      :+:    :+:   */
+/*   main3.c                                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: edelangh <edelangh@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2016/03/02 10:39:55 by edelangh          #+#    #+#             */
-/*   Updated: 2016/03/03 14:14:29 by edelangh         ###   ########.fr       */
+/*   Created: 2016/03/03 10:35:39 by edelangh          #+#    #+#             */
+/*   Updated: 2016/03/03 14:51:31 by edelangh         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "alloc.h"
-#include "tools.h"
+#include <time.h>
+#include <unistd.h>
+#include <stdlib.h>
+#include <stdio.h>
 
-void	*realloc(void *ptr, size_t size)
+int		main(void)
 {
-	t_blk		*blk;
-	void		*new;
-	t_ptr_info	i;
+	int	i = 1e5;
 
-	i = get_ptr_info(ptr);
-	blk = i.blk;
-	if (blk && size < blk->size)
+	srand(time(NULL));
+	while (--i)
 	{
-		ft_putstr("-ERR(");
-		ft_putptr(ptr);
-		ft_putstr(")");
-		i = get_ptr_info(ptr);
-		blk = NULL;
+		malloc(rand() % i);
 	}
-	new = malloc(size);
-	if (new && ptr && blk)
-	{
-		ft_memcpy(new, ptr, blk->size);
-		free(ptr);
-	}
-	return (new);
+	write(1, "OK\n", 3);
+	sleep(5);
+	return (0);
 }

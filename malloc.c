@@ -6,7 +6,7 @@
 /*   By: edelangh <edelangh@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2016/03/02 10:05:21 by edelangh          #+#    #+#             */
-/*   Updated: 2016/03/02 20:53:26 by edelangh         ###   ########.fr       */
+/*   Updated: 2016/03/03 20:35:52 by edelangh         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,13 +14,6 @@
 #include <sys/mman.h>
 
 t_alloc	g_alloc = {NULL, NULL, NULL, PTHREAD_MUTEX_INITIALIZER};
-
-
-#include <signal.h> // NOP
-#include <stdlib.h> // NOP
-#include <errno.h>
-
-void	perror(const char *s); // NOP
 
 static t_hdr	*new_hdr(t_hdr** ahdr, size_t size)
 {
@@ -30,14 +23,12 @@ static t_hdr	*new_hdr(t_hdr** ahdr, size_t size)
 	size_t	page_size;
 
 	prev = *ahdr;
-	write(2, "-mmap", 4);
 	page_size = getpagesize();
 	size = (((size + sizeof(t_blk) * 2 + sizeof(t_hdr)) / page_size) + 1) * page_size;
 	hdr = mmap(NULL, size, PROT_READ|PROT_WRITE, MAP_ANON|MAP_PRIVATE, -1, (off_t)0);
-	if (hdr == MAP_FAILED)
+	if (hdr == MAP_FAILED) // NOP
 	{
-		write(2, "PUTAIN\n", 7);
-		perror("signal-error");
+		write(1, "PUTAIN\n", 7);
 		while (1)
 			continue ;
 	}
@@ -51,25 +42,57 @@ static t_hdr	*new_hdr(t_hdr** ahdr, size_t size)
 	return (hdr);
 }
 
+static int		hdr_is_realy_place(t_hdr *hdr, size_t size)
+{
+	t_blk	*blk;
+	size_t	free_size;
+
+	free_size = hdr->size - sizeof(t_hdr) - sizeof(t_blk);
+	blk = FST_BLK(hdr);
+	while (blk->size)
+	{
+		if (blk->freed && blk->size >= size)
+			return (1);
+		free_size -= blk->size + sizeof(t_blk);
+		++blk;
+	}
+	return (free_size >= size + sizeof(t_blk));
+}
+
 static t_hdr	*get_hdr(t_hdr **ahdr, size_t size)
 {
 	t_hdr		*hdr;
-	
+
 	hdr = *ahdr;
-	if (hdr)
-	{
-		write(2, "-", 1);
-		ft_putnbr(hdr->size);
-		write(2, "-", 1);
-		ft_putnbr(hdr->used);
-	}
-	while (hdr && !HDR_IS_PLACE(hdr, size))
+	while (hdr && !(HDR_IS_PLACE(hdr, size) && hdr_is_realy_place(hdr, size)))
 		hdr = hdr->prev;
 	if (!hdr)
 		hdr = new_hdr(ahdr, size);
 	return (hdr);
 }
 
+static size_t get_freed_size(t_blk *blk)
+{
+	size_t size;
+
+	size = 0;
+	while (blk->freed && blk->size)
+	{
+		size += blk->size;
+		++blk;
+	}
+	return (size);
+}
+
+static void		fix_de_merde(t_blk *blk, size_t move)
+{
+	while (blk->size)
+	{
+		blk = blk + move;
+		++blk;
+	}
+}
+void exit(int);
 static t_blk	*new_blk(t_hdr *hdr, size_t size)
 {
 	t_blk	*blk;
@@ -80,17 +103,44 @@ static t_blk	*new_blk(t_hdr *hdr, size_t size)
 	ptr = HDR_END(hdr);
 	while (blk->size != 0)
 	{
+		size_t	freed = get_freed_size(blk);
+		t_blk	*tblk;
 		ptr = blk->ptr;
+		if (freed >= size)
+		{
+			/*
+			ft_putstr("freed: ");
+			ft_putnbr(size);
+			ft_putstr(":");
+			ft_putptr(ptr);
+			ft_putstr("\n");
+			ft_print_memory();
+			*/
+			freed = blk->size;
+			tblk = blk;
+			while (freed < size)
+			{
+				++tblk;
+				ptr = tblk->ptr;
+				freed += tblk->size;
+				hdr->used -= sizeof(t_blk);
+			}
+			fix_de_merde(blk, ((void*)tblk - (void*)blk) / sizeof(t_blk));
+			{
+				blk->size = freed;
+				blk->freed = 0;
+				blk->ptr = ptr;
+			}
+			//ft_print_memory();
+			//exit(1);
+			return (blk);
+		}
 		++blk;
 	}
-	// Set blk
 	ptr -= size;
 	blk->size = size;
 	blk->freed = 0;
-	write(2, "-3", 2);
 	blk->ptr = ptr;
-	write(2, "-4", 2);
-	// INIT next
 	hdr->used += size + sizeof(t_blk);
 	tmp = blk + 1;
 	tmp->size = 0;
@@ -105,54 +155,24 @@ static void		*get_alloc(t_hdr **ahdr, size_t size)
 	void	*ptr;
 
 	hdr = get_hdr(ahdr, size);
-	// TODO defrag
 	blk = new_blk(hdr, size);
 	ptr = blk->ptr;
 	return (ptr);
-}
-
-void		lol(int sig) // NOP
-{
-	static int a = 1;
-
-	if (a)
-	{
-		a = 0;
-	write(2, "SIGNAL:", 7);
-	ft_putnbr(sig);
-	write(2, "\n", 1);
-	perror("signal-error");
-	ft_print_memory();
-	}
-	exit(1);
 }
 
 void	*malloc(size_t size)
 {
 	void	*ptr;
 
-	static int a = 1;
-	if (a)
-	{
-		a = 0;
-		int i;
-		for (i = 1; i < 22; ++i)
-			signal(i, &lol);
-	}
+	ft_putstr("malloc");
 	pthread_mutex_lock(&(g_alloc.mutex));
-	errno = 0;
-	write(2, "malloc", 6);
-	write(2, "-", 1);
-	ft_putnbr(size);
 	if (size <= N)
 		ptr = get_alloc(&(g_alloc.tiny), size);
 	else if (size <= M)
 		ptr = get_alloc(&(g_alloc.small), size);
 	else
 		ptr = get_alloc(&(g_alloc.large), size);
-	write(2, "-", 1);
-	ft_putptr(ptr);
-	write(2, "-OK\n", 4);
 	pthread_mutex_unlock(&(g_alloc.mutex));
+	ft_putstr("-out\n");
 	return (ptr);
 }
