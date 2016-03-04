@@ -6,7 +6,7 @@
 /*   By: edelangh <edelangh@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2016/03/02 10:05:21 by edelangh          #+#    #+#             */
-/*   Updated: 2016/03/03 20:35:52 by edelangh         ###   ########.fr       */
+/*   Updated: 2016/03/04 12:27:30 by edelangh         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,6 +14,7 @@
 #include <sys/mman.h>
 
 t_alloc	g_alloc = {NULL, NULL, NULL, PTHREAD_MUTEX_INITIALIZER};
+size_t count = 0;
 
 static t_hdr	*new_hdr(t_hdr** ahdr, size_t size)
 {
@@ -86,9 +87,14 @@ static size_t get_freed_size(t_blk *blk)
 
 static void		fix_de_merde(t_blk *blk, size_t move)
 {
+	t_blk	*tmp;
+	
 	while (blk->size)
 	{
-		blk = blk + move;
+		tmp = blk + move;
+		blk->size = tmp->size;
+		blk->freed = tmp->freed;
+		blk->ptr = tmp->ptr;
 		++blk;
 	}
 }
@@ -108,14 +114,6 @@ static t_blk	*new_blk(t_hdr *hdr, size_t size)
 		ptr = blk->ptr;
 		if (freed >= size)
 		{
-			/*
-			ft_putstr("freed: ");
-			ft_putnbr(size);
-			ft_putstr(":");
-			ft_putptr(ptr);
-			ft_putstr("\n");
-			ft_print_memory();
-			*/
 			freed = blk->size;
 			tblk = blk;
 			while (freed < size)
@@ -123,16 +121,14 @@ static t_blk	*new_blk(t_hdr *hdr, size_t size)
 				++tblk;
 				ptr = tblk->ptr;
 				freed += tblk->size;
-				hdr->used -= sizeof(t_blk);
 			}
 			fix_de_merde(blk, ((void*)tblk - (void*)blk) / sizeof(t_blk));
 			{
 				blk->size = freed;
 				blk->freed = 0;
 				blk->ptr = ptr;
+				hdr->used += blk->size + sizeof(t_blk);
 			}
-			//ft_print_memory();
-			//exit(1);
 			return (blk);
 		}
 		++blk;
@@ -164,7 +160,6 @@ void	*malloc(size_t size)
 {
 	void	*ptr;
 
-	ft_putstr("malloc");
 	pthread_mutex_lock(&(g_alloc.mutex));
 	if (size <= N)
 		ptr = get_alloc(&(g_alloc.tiny), size);
@@ -173,6 +168,5 @@ void	*malloc(size_t size)
 	else
 		ptr = get_alloc(&(g_alloc.large), size);
 	pthread_mutex_unlock(&(g_alloc.mutex));
-	ft_putstr("-out\n");
 	return (ptr);
 }

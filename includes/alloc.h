@@ -6,7 +6,7 @@
 /*   By: edelangh <edelangh@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2016/03/02 10:16:21 by edelangh          #+#    #+#             */
-/*   Updated: 2016/03/03 15:01:35 by edelangh         ###   ########.fr       */
+/*   Updated: 2016/03/04 12:27:04 by edelangh         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -40,9 +40,9 @@ typedef struct		s_hdr
 
 typedef struct		s_blk
 {
+	void			*ptr;
 	unsigned int	size:31;
 	unsigned int	freed:1;
-	void			*ptr;
 }					t_blk;
 
 typedef struct		s_alloc

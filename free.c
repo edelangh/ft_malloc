@@ -6,7 +6,7 @@
 /*   By: edelangh <edelangh@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2016/03/02 10:07:21 by edelangh          #+#    #+#             */
-/*   Updated: 2016/03/03 20:35:55 by edelangh         ###   ########.fr       */
+/*   Updated: 2016/03/04 12:27:17 by edelangh         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -39,7 +39,6 @@ void	free(void *ptr)
 	t_blk		*blk;
 	t_ptr_info	i;
 
-	ft_putstr("free");
 	if (ptr)
 	{
 		i = get_ptr_info(ptr);
@@ -47,23 +46,18 @@ void	free(void *ptr)
 		hdr = i.hdr;
 		if (blk)
 		{
-			hdr->used -= blk->size + sizeof(t_blk);
-			blk->freed = 1;
-			if (hdr->used == sizeof(t_hdr) + sizeof(t_blk))
-				free_hdr(i.ahdr, i.hdr);
-			else if ((blk + 1)->size == 0)
+			if (blk->freed == 0)
 			{
-				blk->size = 0;
-				blk->freed = 0;
+				hdr->used -= blk->size + sizeof(t_blk);
+				blk->freed = 1;
+				if (hdr->used == sizeof(t_hdr) + sizeof(t_blk))
+					free_hdr(i.ahdr, i.hdr);
+				else if ((blk + 1)->size == 0)
+				{
+					blk->size = 0;
+					blk->freed = 0;
+				}
 			}
 		}
-		else
-		{
-		/*	ft_putstr("Erreur free:");
-			ft_putptr(ptr);
-			write(1, "\n", 1);
-		*/
-		}
 	}
-	ft_putstr("-out\n");
 }

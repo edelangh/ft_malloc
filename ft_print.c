@@ -6,7 +6,7 @@
 /*   By: edelangh <edelangh@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2016/03/02 19:58:54 by edelangh          #+#    #+#             */
-/*   Updated: 2016/03/03 14:37:59 by edelangh         ###   ########.fr       */
+/*   Updated: 2016/03/04 12:05:09 by edelangh         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,7 +30,9 @@ static size_t get_freed_size(t_blk *blk)
 static void	print_all_hdr(t_hdr *hdr)
 {
 	t_blk	*blk;
+	size_t	real_size;
 
+	real_size = sizeof(t_hdr) + sizeof(t_blk);
 	while (hdr)
 	{
 		ft_putstr("==>");
@@ -44,6 +46,8 @@ static void	print_all_hdr(t_hdr *hdr)
 		blk = FST_BLK(hdr);
 		while (blk->size)
 		{
+			if (blk->freed == 0)
+				real_size += blk->size + sizeof(t_blk);
 			ft_putstr(" -");
 			ft_putptr(blk);
 			ft_putstr("[");
@@ -57,6 +61,9 @@ static void	print_all_hdr(t_hdr *hdr)
 			ft_putstr("\n");
 			++blk;
 		}
+		ft_putstr("RealSize:");
+		ft_putnbr(real_size);
+		ft_putstr("\n");
 		hdr = hdr->prev;
 	}
 }
@@ -65,6 +72,7 @@ void		ft_print_memory(void)
 {
 	ft_putstr("==TINY==\n");
 	print_all_hdr(g_alloc.tiny);
+	return ;
 	ft_putstr("==SMALL==\n");
 	print_all_hdr(g_alloc.small);
 	ft_putstr("==LARGE==\n");
