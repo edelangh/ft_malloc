@@ -6,7 +6,7 @@
 /*   By: edelangh <edelangh@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2016/03/02 10:16:21 by edelangh          #+#    #+#             */
-/*   Updated: 2016/03/05 16:18:47 by edelangh         ###   ########.fr       */
+/*   Updated: 2016/03/05 16:58:18 by edelangh         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,8 +17,8 @@
 # include <unistd.h>
 # include <pthread.h>
 
-# define N 32
-# define M 128
+# define N 128
+# define M 1024
 
 typedef struct s_hdr	t_hdr;
 typedef struct s_blk	t_blk;

@@ -1,33 +1,36 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   realloc.c                                          :+:      :+:    :+:   */
+/*   main.c                                             :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: edelangh <edelangh@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2016/03/02 10:39:55 by edelangh          #+#    #+#             */
-/*   Updated: 2016/03/05 17:29:57 by edelangh         ###   ########.fr       */
+/*   Created: 2016/03/05 16:52:07 by edelangh          #+#    #+#             */
+/*   Updated: 2016/03/05 17:06:41 by edelangh         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "alloc.h"
-#include "tools.h"
+#include <unistd.h>
+#include <stdlib.h>
+#include <string.h>
 
-void	*realloc(void *ptr, size_t size)
+#define M (1024*1024)
+
+void	print(char *s)
 {
-	t_blk		*blk;
-	void		*new;
-	t_ptr_info	i;
+	write(1, s, strlen(s));
+}
 
-	i = get_ptr_info(ptr);
-	blk = i.blk;
-	new = NULL;
-	if (!blk || (!blk && blk->size <= size))
-		new = malloc(size);
-	if (new && ptr && blk)
-	{
-		ft_memcpy(new, ptr, blk->size);
-		free(ptr);
-	}
-	return (new);
+int		main()
+{
+	char	*addr1;
+	char	*addr3;
+
+	addr1 = malloc(16*M);
+	strcpy(addr1, "Bonjours\n");
+	print(addr1);
+	addr3 = realloc(addr1, 128*M);
+	addr3[127*M] = 42;
+	print(addr3);
+	return (0);
 }

@@ -6,7 +6,7 @@
 /*   By: edelangh <edelangh@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2016/03/02 10:14:37 by edelangh          #+#    #+#             */
-/*   Updated: 2016/03/05 14:56:08 by edelangh         ###   ########.fr       */
+/*   Updated: 2016/03/05 17:29:13 by edelangh         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,11 +23,16 @@ static void		get_blk_by_ptr_bis(t_hdr *hdr, void *ptr, t_ptr_info *i)
 	{
 		if (PTR_IN_HDR(hdr, ptr))
 		{
-			i->hdr = hdr;
 			blk = FST_BLK(hdr);
-			while (blk->ptr != ptr)
+			while (blk->ptr <= ptr && ptr < blk->ptr + blk->size)
+			{
 				++blk;
+				if (!blk->size)
+					return ;
+			}
+			i->hdr = hdr;
 			i->blk = blk;
+			i->ptr = blk->ptr;
 		}
 		hdr = hdr->prev;
 	}
@@ -40,17 +45,21 @@ t_ptr_info		get_ptr_info(void *ptr)
 	i.hdr = NULL;
 	i.blk = NULL;
 	i.ptr = ptr;
-	i.ahdr = &g_alloc.tiny;
-	get_blk_by_ptr_bis(g_alloc.tiny, ptr, &i);
-	if (!i.blk)
+	i.ahdr = NULL;
+	if (ptr)
 	{
-		i.ahdr = &g_alloc.small;
-		get_blk_by_ptr_bis(g_alloc.small, ptr, &i);
-	}
-	if (!i.blk)
-	{
-		i.ahdr = &g_alloc.large;
-		get_blk_by_ptr_bis(g_alloc.large, ptr, &i);
+		i.ahdr = &g_alloc.tiny;
+		get_blk_by_ptr_bis(g_alloc.tiny, ptr, &i);
+		if (!i.blk)
+		{
+			i.ahdr = &g_alloc.small;
+			get_blk_by_ptr_bis(g_alloc.small, ptr, &i);
+		}
+		if (!i.blk)
+		{
+			i.ahdr = &g_alloc.large;
+			get_blk_by_ptr_bis(g_alloc.large, ptr, &i);
+		}
 	}
 	return (i);
 }

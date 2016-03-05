@@ -1,33 +1,32 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   realloc.c                                          :+:      :+:    :+:   */
+/*   main.c                                             :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: edelangh <edelangh@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2016/03/02 10:39:55 by edelangh          #+#    #+#             */
-/*   Updated: 2016/03/05 17:29:57 by edelangh         ###   ########.fr       */
+/*   Created: 2016/03/05 16:52:07 by edelangh          #+#    #+#             */
+/*   Updated: 2016/03/05 17:30:16 by edelangh         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "alloc.h"
-#include "tools.h"
+#include <unistd.h>
+#include <stdlib.h>
+#include <string.h>
 
-void	*realloc(void *ptr, size_t size)
+void	print(char *s)
 {
-	t_blk		*blk;
-	void		*new;
-	t_ptr_info	i;
+	write(1, s, strlen(s));
+}
 
-	i = get_ptr_info(ptr);
-	blk = i.blk;
-	new = NULL;
-	if (!blk || (!blk && blk->size <= size))
-		new = malloc(size);
-	if (new && ptr && blk)
-	{
-		ft_memcpy(new, ptr, blk->size);
-		free(ptr);
-	}
-	return (new);
+int		main()
+{
+	char	*addr;
+
+	addr = malloc(16);
+	free(NULL);
+	free(addr + 5);
+	if (realloc(addr + 5, 10) == NULL)
+		print("Bonjours\n");
+	return (0);
 }

@@ -1,33 +1,26 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   realloc.c                                          :+:      :+:    :+:   */
+/*   main.c                                             :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: edelangh <edelangh@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2016/03/02 10:39:55 by edelangh          #+#    #+#             */
-/*   Updated: 2016/03/05 17:29:57 by edelangh         ###   ########.fr       */
+/*   Created: 2016/03/05 16:52:07 by edelangh          #+#    #+#             */
+/*   Updated: 2016/03/05 16:52:40 by edelangh         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "alloc.h"
-#include "tools.h"
+#include <stdlib.h>
 
-void	*realloc(void *ptr, size_t size)
+int		main()
 {
-	t_blk		*blk;
-	void		*new;
-	t_ptr_info	i;
+	int	i;
+	char	*addr;
 
-	i = get_ptr_info(ptr);
-	blk = i.blk;
-	new = NULL;
-	if (!blk || (!blk && blk->size <= size))
-		new = malloc(size);
-	if (new && ptr && blk)
+	i = 0;
+	while (i < 1024)
 	{
-		ft_memcpy(new, ptr, blk->size);
-		free(ptr);
+		i++;
 	}
-	return (new);
+	return (0);
 }
