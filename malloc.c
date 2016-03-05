@@ -6,7 +6,7 @@
 /*   By: edelangh <edelangh@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2016/03/02 10:05:21 by edelangh          #+#    #+#             */
-/*   Updated: 2016/03/05 15:11:33 by edelangh         ###   ########.fr       */
+/*   Updated: 2016/03/05 15:36:33 by edelangh         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -38,23 +38,6 @@ static t_hdr	*new_hdr(t_hdr **ahdr, size_t sz)
 	return (hdr);
 }
 
-static int		hdr_is_realy_place(t_hdr *hdr, size_t size)
-{
-	t_blk	*blk;
-	size_t	free_size;
-
-	free_size = hdr->size - sizeof(t_hdr) - sizeof(t_blk);
-	blk = FST_BLK(hdr);
-	while (blk->size)
-	{
-		if (blk->freed && blk->size >= size)
-			return (1);
-		free_size -= blk->size + sizeof(t_blk);
-		++blk;
-	}
-	return (free_size >= size + sizeof(t_blk));
-}
-
 static t_hdr	*get_hdr(t_hdr **ahdr, size_t size)
 {
 	t_hdr		*hdr;
@@ -65,54 +48,6 @@ static t_hdr	*get_hdr(t_hdr **ahdr, size_t size)
 	if (!hdr)
 		hdr = new_hdr(ahdr, size);
 	return (hdr);
-}
-
-static size_t	get_freed_size(t_blk *blk)
-{
-	size_t size;
-
-	size = 0;
-	while (blk->freed && blk->size)
-	{
-		size += blk->size;
-		++blk;
-	}
-	return (size);
-}
-
-static void		fix_de_merde(t_blk *blk, size_t move)
-{
-	t_blk	*tmp;
-
-	while (blk->size)
-	{
-		tmp = blk + move;
-		blk->size = tmp->size;
-		blk->freed = tmp->freed;
-		blk->ptr = tmp->ptr;
-		++blk;
-	}
-}
-
-static t_blk	*use_freed(t_hdr *hdr, t_blk *blk, size_t size, void *ptr)
-{
-	t_blk	*tblk;
-	size_t	freed;
-
-	freed = blk->size;
-	tblk = blk;
-	while (freed < size)
-	{
-		++tblk;
-		ptr = tblk->ptr;
-		freed += tblk->size;
-	}
-	fix_de_merde(blk, ((void*)tblk - (void*)blk) / sizeof(t_blk));
-	blk->size = freed;
-	blk->freed = 0;
-	blk->ptr = ptr;
-	hdr->used += blk->size + sizeof(t_blk);
-	return (blk);
 }
 
 static t_blk	*new_blk(t_hdr *hdr, size_t size)
@@ -153,7 +88,7 @@ static void		*get_alloc(t_hdr **ahdr, size_t size)
 	return (ptr);
 }
 
-void	*malloc(size_t size)
+void			*malloc(size_t size)
 {
 	void	*ptr;
 

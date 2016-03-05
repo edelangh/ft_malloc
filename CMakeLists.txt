@@ -11,5 +11,6 @@ add_library(ft_malloc SHARED
 	calloc.c
 	free.c
 	ft_print.c
+	utils.c
 	)
 #add_library(ft_malloc MODULE malloc.c)
