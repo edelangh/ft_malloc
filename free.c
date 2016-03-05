@@ -6,7 +6,7 @@
 /*   By: edelangh <edelangh@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2016/03/02 10:07:21 by edelangh          #+#    #+#             */
-/*   Updated: 2016/03/05 14:52:53 by edelangh         ###   ########.fr       */
+/*   Updated: 2016/03/05 18:18:01 by edelangh         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -39,25 +39,24 @@ void	free(void *ptr)
 	t_blk		*blk;
 	t_ptr_info	i;
 
+	pthread_mutex_lock(&(g_alloc.mutex2));
 	if (ptr)
 	{
 		i = get_ptr_info(ptr);
 		blk = i.blk;
 		hdr = i.hdr;
-		if (blk)
+		if (blk && blk->freed == 0 && blk->ptr == ptr)
 		{
-			if (blk->freed == 0)
+			hdr->used -= blk->size + sizeof(t_blk);
+			blk->freed = 1;
+			if (hdr->used == sizeof(t_hdr) + sizeof(t_blk))
+				free_hdr(i.ahdr, i.hdr);
+			else if ((blk + 1)->size == 0)
 			{
-				hdr->used -= blk->size + sizeof(t_blk);
-				blk->freed = 1;
-				if (hdr->used == sizeof(t_hdr) + sizeof(t_blk))
-					free_hdr(i.ahdr, i.hdr);
-				else if ((blk + 1)->size == 0)
-				{
-					blk->size = 0;
-					blk->freed = 0;
-				}
+				blk->size = 0;
+				blk->freed = 0;
 			}
 		}
 	}
+	pthread_mutex_unlock(&(g_alloc.mutex2));
 }

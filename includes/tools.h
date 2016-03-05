@@ -6,7 +6,7 @@
 /*   By: edelangh <edelangh@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2016/03/02 10:13:38 by edelangh          #+#    #+#             */
-/*   Updated: 2016/03/05 16:44:19 by edelangh         ###   ########.fr       */
+/*   Updated: 2016/03/05 17:58:33 by edelangh         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,6 +31,7 @@ void					*ft_memcpy(void *dst, void *src, size_t size);
 t_ptr_info				get_ptr_info(void *ptr);
 void					ft_print_memory(void);
 void					show_alloc_mem(void);
+size_t					get_alloc_size(void *ptr);
 
 void					ft_putptr(void *s);
 void					ft_putnbr(size_t s);

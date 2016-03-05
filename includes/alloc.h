@@ -6,7 +6,7 @@
 /*   By: edelangh <edelangh@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2016/03/02 10:16:21 by edelangh          #+#    #+#             */
-/*   Updated: 2016/03/05 16:58:18 by edelangh         ###   ########.fr       */
+/*   Updated: 2016/03/05 17:58:25 by edelangh         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,7 +26,6 @@ typedef struct s_alloc	t_alloc;
 
 void				*malloc(size_t size);
 void				*calloc(size_t count, size_t size);
-void				*valloc(size_t size);
 void				*realloc(void *ptr, size_t size);
 void				*reallocf(void *ptr, size_t size);
 void				free(void *ptr);
@@ -58,6 +57,7 @@ struct				s_alloc
 	t_hdr			*small;
 	t_hdr			*large;
 	pthread_mutex_t	mutex;
+	pthread_mutex_t	mutex2;
 };
 
 extern t_alloc		g_alloc;

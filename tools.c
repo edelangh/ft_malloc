@@ -6,7 +6,7 @@
 /*   By: edelangh <edelangh@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2016/03/02 10:14:37 by edelangh          #+#    #+#             */
-/*   Updated: 2016/03/05 17:29:13 by edelangh         ###   ########.fr       */
+/*   Updated: 2016/03/05 18:13:50 by edelangh         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,7 +24,7 @@ static void		get_blk_by_ptr_bis(t_hdr *hdr, void *ptr, t_ptr_info *i)
 		if (PTR_IN_HDR(hdr, ptr))
 		{
 			blk = FST_BLK(hdr);
-			while (blk->ptr <= ptr && ptr < blk->ptr + blk->size)
+			while (blk->ptr > ptr || ptr >= blk->ptr + (size_t)blk->size)
 			{
 				++blk;
 				if (!blk->size)
@@ -62,6 +62,18 @@ t_ptr_info		get_ptr_info(void *ptr)
 		}
 	}
 	return (i);
+}
+
+size_t			get_alloc_size(void *ptr)
+{
+	t_ptr_info	i;
+	size_t		res;
+
+	res = 0;
+	i = get_ptr_info(ptr);
+	if (i.blk)
+		res = (size_t)i.blk->size;
+	return (res);
 }
 
 void			*ft_memcpy(void *dst, void *src, size_t size)

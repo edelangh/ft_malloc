@@ -6,14 +6,15 @@
 /*   By: edelangh <edelangh@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2016/03/02 10:05:21 by edelangh          #+#    #+#             */
-/*   Updated: 2016/03/05 15:36:33 by edelangh         ###   ########.fr       */
+/*   Updated: 2016/03/05 17:42:00 by edelangh         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "alloc.h"
 #include <sys/mman.h>
 
-t_alloc	g_alloc = {NULL, NULL, NULL, PTHREAD_MUTEX_INITIALIZER};
+t_alloc	g_alloc = {NULL, NULL, NULL,
+	PTHREAD_MUTEX_INITIALIZER, PTHREAD_MUTEX_INITIALIZER};
 
 static t_hdr	*new_hdr(t_hdr **ahdr, size_t sz)
 {
