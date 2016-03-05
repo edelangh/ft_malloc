@@ -6,7 +6,7 @@
 /*   By: edelangh <edelangh@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2016/03/02 10:14:37 by edelangh          #+#    #+#             */
-/*   Updated: 2016/03/03 11:20:23 by edelangh         ###   ########.fr       */
+/*   Updated: 2016/03/05 14:56:08 by edelangh         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,15 +28,6 @@ static void		get_blk_by_ptr_bis(t_hdr *hdr, void *ptr, t_ptr_info *i)
 			while (blk->ptr != ptr)
 				++blk;
 			i->blk = blk;
-			if (!PTR_IN_HDR(hdr, blk) || (void*)blk > ptr) // TODO RM this check
-			{
-				if (!PTR_IN_HDR(hdr, blk))
-					ft_putstr("BLK DE MERDE\n");
-				else
-					ft_putstr("BLK DE MER2\n");
-				while (1)
-					continue ;
-			}
 		}
 		hdr = hdr->prev;
 	}
@@ -64,7 +55,7 @@ t_ptr_info		get_ptr_info(void *ptr)
 	return (i);
 }
 
-void	*ft_memcpy(void *dst, void *src, size_t size)
+void			*ft_memcpy(void *dst, void *src, size_t size)
 {
 	unsigned char	*cdst;
 	unsigned char	*csrc;
@@ -84,7 +75,7 @@ void	*ft_memcpy(void *dst, void *src, size_t size)
 	return (dst);
 }
 
-void	*ft_bzero(void *ptr, size_t size)
+void			*ft_bzero(void *ptr, size_t size)
 {
 	size_t			i;
 	unsigned char	*cptr;

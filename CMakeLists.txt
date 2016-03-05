@@ -9,7 +9,6 @@ add_library(ft_malloc SHARED
 	realloc.c
 	reallocf.c
 	calloc.c
-	valloc.c
 	free.c
 	ft_print.c
 	)

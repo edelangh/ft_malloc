@@ -6,7 +6,7 @@
 /*   By: edelangh <edelangh@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2016/03/02 10:16:21 by edelangh          #+#    #+#             */
-/*   Updated: 2016/03/04 12:27:04 by edelangh         ###   ########.fr       */
+/*   Updated: 2016/03/05 14:58:14 by edelangh         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,8 +16,6 @@
 # include <stddef.h>
 # include <unistd.h>
 # include <pthread.h>
-
-#include "tools.h" // NOP
 
 # define N 32
 # define M 128
@@ -56,8 +54,8 @@ typedef struct		s_alloc
 extern t_alloc		g_alloc;
 
 #define HDR_IS_PLACE(X, S) (X->size - X->used >= S + sizeof(t_blk))
-#define FST_BLK(X) (t_blk*)((char*)X + sizeof(t_hdr))
-#define HDR_END(X) (void*)((char*)X + X->size)
+#define FST_BLK(X) (t_blk*)((void*)X + sizeof(t_hdr))
+#define HDR_END(X) ((void*)X + X->size)
 
-#define PTR_IN_HDR(X, P) ((char*)P > (char*)X && (char*)P < (char*)HDR_END(X))
+#define PTR_IN_HDR(X, P) ((char*)P > (char*)X && (void*)P < HDR_END(X))
 #endif

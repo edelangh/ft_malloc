@@ -6,7 +6,7 @@
 /*   By: edelangh <edelangh@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2016/03/02 19:58:54 by edelangh          #+#    #+#             */
-/*   Updated: 2016/03/04 12:05:09 by edelangh         ###   ########.fr       */
+/*   Updated: 2016/03/05 14:56:37 by edelangh         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,7 +14,7 @@
 #include "tools.h"
 #include "alloc.h"
 
-static size_t get_freed_size(t_blk *blk)
+static size_t	get_freed_size(t_blk *blk)
 {
 	size_t size;
 
@@ -27,14 +27,17 @@ static size_t get_freed_size(t_blk *blk)
 	return (size);
 }
 
-static void	print_all_hdr(t_hdr *hdr)
+static void		print_all_hdr(t_hdr *hdr)
 {
 	t_blk	*blk;
 	size_t	real_size;
+	void	*prev;
+	size_t	diff;
 
-	real_size = sizeof(t_hdr) + sizeof(t_blk);
 	while (hdr)
 	{
+		real_size = sizeof(t_hdr) + sizeof(t_blk);
+		prev = HDR_END(hdr);
 		ft_putstr("==>");
 		ft_putptr(hdr);
 		ft_putstr("[");
@@ -58,11 +61,19 @@ static void	print_all_hdr(t_hdr *hdr)
 			ft_putstr("}");
 			ft_putstr("->");
 			ft_putptr(blk->ptr);
+			ft_putstr(" + ");
+			diff = (size_t)(prev - blk->ptr);
+			ft_putnbr(diff);
+			if (diff != blk->size)
+				ft_putstr(" -- ERROR Detected");
 			ft_putstr("\n");
+			prev = blk->ptr;
 			++blk;
 		}
 		ft_putstr("RealSize:");
 		ft_putnbr(real_size);
+		if (real_size != hdr->used)
+			ft_putstr(" -- ERROR Detected");
 		ft_putstr("\n");
 		hdr = hdr->prev;
 	}
@@ -72,14 +83,13 @@ void		ft_print_memory(void)
 {
 	ft_putstr("==TINY==\n");
 	print_all_hdr(g_alloc.tiny);
-	return ;
 	ft_putstr("==SMALL==\n");
 	print_all_hdr(g_alloc.small);
 	ft_putstr("==LARGE==\n");
 	print_all_hdr(g_alloc.large);
 }
 
-void	ft_putnbr(size_t size)
+void		ft_putnbr(size_t size)
 {
 	size_t	n;
 	char	c;
@@ -92,7 +102,7 @@ void	ft_putnbr(size_t size)
 	write(1, &c, 1);
 }
 
-void	ft_putptr(void *ptr)
+void		ft_putptr(void *ptr)
 {
 	size_t	n;
 	char	c;
@@ -110,7 +120,7 @@ void	ft_putptr(void *ptr)
 	write(1, &c, 1);
 }
 
-void	ft_putstr(const char *s)
+void		ft_putstr(const char *s)
 {
 	int		i;
 

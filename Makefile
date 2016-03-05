@@ -16,7 +16,6 @@ SRCS = tools.c \
 	   realloc.c \
 	   reallocf.c \
 	   calloc.c \
-	   valloc.c \
 	   free.c \
 	   ft_print.c
 

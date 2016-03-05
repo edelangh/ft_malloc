@@ -6,7 +6,7 @@
 /*   By: edelangh <edelangh@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2016/03/04 12:33:19 by edelangh          #+#    #+#             */
-/*   Updated: 2016/03/04 12:36:06 by edelangh         ###   ########.fr       */
+/*   Updated: 2016/03/05 14:59:02 by edelangh         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,7 +19,9 @@ void	leak(void)
 
 int		main(void)
 {
-	char *a = malloc(42);
+	char *a;
+   
+	a = malloc(42);
 	leak();
 	sleep(15);
 	return (0);

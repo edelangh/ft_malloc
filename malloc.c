@@ -6,7 +6,7 @@
 /*   By: edelangh <edelangh@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2016/03/02 10:05:21 by edelangh          #+#    #+#             */
-/*   Updated: 2016/03/04 12:27:30 by edelangh         ###   ########.fr       */
+/*   Updated: 2016/03/05 15:11:33 by edelangh         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,28 +14,23 @@
 #include <sys/mman.h>
 
 t_alloc	g_alloc = {NULL, NULL, NULL, PTHREAD_MUTEX_INITIALIZER};
-size_t count = 0;
 
-static t_hdr	*new_hdr(t_hdr** ahdr, size_t size)
+static t_hdr	*new_hdr(t_hdr **ahdr, size_t sz)
 {
 	t_hdr	*prev;
 	t_hdr	*hdr;
 	t_blk	*blk;
-	size_t	page_size;
+	size_t	page_sz;
 
 	prev = *ahdr;
-	page_size = getpagesize();
-	size = (((size + sizeof(t_blk) * 2 + sizeof(t_hdr)) / page_size) + 1) * page_size;
-	hdr = mmap(NULL, size, PROT_READ|PROT_WRITE, MAP_ANON|MAP_PRIVATE, -1, (off_t)0);
-	if (hdr == MAP_FAILED) // NOP
-	{
-		write(1, "PUTAIN\n", 7);
-		while (1)
-			continue ;
-	}
+	page_sz = getpagesize();
+	if (sz <= M)
+		sz *= 100;
+	sz = (((sz + sizeof(t_blk) * 2 + sizeof(t_hdr)) / page_sz) + 1) * page_sz;
+	hdr = mmap(NULL, sz, PROT_READ | PROT_WRITE, MAP_ANON | MAP_PRIVATE, -1, 0);
 	*ahdr = hdr;
 	hdr->prev = prev;
-	hdr->size = size;
+	hdr->size = sz;
 	hdr->used = sizeof(t_hdr) + sizeof(t_blk);
 	blk = (void*)hdr + sizeof(t_hdr);
 	blk->size = 0;
@@ -72,7 +67,7 @@ static t_hdr	*get_hdr(t_hdr **ahdr, size_t size)
 	return (hdr);
 }
 
-static size_t get_freed_size(t_blk *blk)
+static size_t	get_freed_size(t_blk *blk)
 {
 	size_t size;
 
@@ -88,7 +83,7 @@ static size_t get_freed_size(t_blk *blk)
 static void		fix_de_merde(t_blk *blk, size_t move)
 {
 	t_blk	*tmp;
-	
+
 	while (blk->size)
 	{
 		tmp = blk + move;
@@ -98,7 +93,28 @@ static void		fix_de_merde(t_blk *blk, size_t move)
 		++blk;
 	}
 }
-void exit(int);
+
+static t_blk	*use_freed(t_hdr *hdr, t_blk *blk, size_t size, void *ptr)
+{
+	t_blk	*tblk;
+	size_t	freed;
+
+	freed = blk->size;
+	tblk = blk;
+	while (freed < size)
+	{
+		++tblk;
+		ptr = tblk->ptr;
+		freed += tblk->size;
+	}
+	fix_de_merde(blk, ((void*)tblk - (void*)blk) / sizeof(t_blk));
+	blk->size = freed;
+	blk->freed = 0;
+	blk->ptr = ptr;
+	hdr->used += blk->size + sizeof(t_blk);
+	return (blk);
+}
+
 static t_blk	*new_blk(t_hdr *hdr, size_t size)
 {
 	t_blk	*blk;
@@ -109,28 +125,9 @@ static t_blk	*new_blk(t_hdr *hdr, size_t size)
 	ptr = HDR_END(hdr);
 	while (blk->size != 0)
 	{
-		size_t	freed = get_freed_size(blk);
-		t_blk	*tblk;
 		ptr = blk->ptr;
-		if (freed >= size)
-		{
-			freed = blk->size;
-			tblk = blk;
-			while (freed < size)
-			{
-				++tblk;
-				ptr = tblk->ptr;
-				freed += tblk->size;
-			}
-			fix_de_merde(blk, ((void*)tblk - (void*)blk) / sizeof(t_blk));
-			{
-				blk->size = freed;
-				blk->freed = 0;
-				blk->ptr = ptr;
-				hdr->used += blk->size + sizeof(t_blk);
-			}
-			return (blk);
-		}
+		if (get_freed_size(blk) >= size)
+			return (use_freed(hdr, blk, size, ptr));
 		++blk;
 	}
 	ptr -= size;
@@ -160,6 +157,8 @@ void	*malloc(size_t size)
 {
 	void	*ptr;
 
+	if (!size)
+		return (NULL);
 	pthread_mutex_lock(&(g_alloc.mutex));
 	if (size <= N)
 		ptr = get_alloc(&(g_alloc.tiny), size);
