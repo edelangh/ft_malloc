@@ -18,7 +18,8 @@ SRCS = tools.c \
 	   calloc.c \
 	   free.c \
 	   ft_print.c \
-	   utils.c
+	   utils.c \
+	   show_alloc_mem.c
 
 .PHONY: all re clean fclean test
 
